@@ -7,8 +7,6 @@ import vectorbt as vbt
 # from api_keys import demo_oanda_key
 import warnings
 
-
-
 from oandapyV20 import API
 from oandapyV20.contrib.factories import InstrumentsCandlesFactory
 import json
@@ -29,40 +27,40 @@ params = {
     "from": start,
     "granularity": granularity
 }
-candles_file = "candles/{}.{}".format(instrument, granularity)
+candles_path = "candles/{}.{}".format(instrument, granularity)
 
-if not os.path.exists(candles_file):
+if not os.path.exists(candles_path):
     # Read the existing CSV file
     os.makedirs("candles", exist_ok=True)
-    data = pd.DataFrame()
+    candles = pd.DataFrame()
+    
+    with open(candles_path, "w") as OUT:
 
-    with open(candles_file, "w") as OUT:
-        # The factory returns a generator generating consecutive candlesticks
-        # requests to retrieve full history from date 'from' till 'to'
+        
+        #This for loop should write columns and lines to the csv file
         for r in InstrumentsCandlesFactory(instrument=instrument, params={'from': start.strftime('%Y-%m-%dT%H:%M:%SZ'), 'granularity': "M5"}):
             api.request(r)
             OUT.write(json.dumps(r.response.get('candles'), indent=2))
-            data = pd.concat([data, pd.DataFrame(r.response.get('candles'))])
+            candles = pd.concat([candles, pd.DataFrame(r.response.get('candles'))])
 
-    data.set_index('time', inplace=True)
-    data.index = pd.to_datetime(data.index)
-    data = data.apply(pd.to_numeric, errors='coerce')
+    candles.set_index('time', inplace=True)
+    candles.index = pd.to_datetime(candles.index)
+    candles = candles.apply(pd.to_numeric, errors='coerce')
 else:
-    data = pd.read_json(candles_file, lines=True)
-    data = pd.json_normalize(data)
-    data['time'] = pd.to_datetime(data['time'])
-    data.set_index('time', inplace=True)
-    data = data.apply(pd.to_numeric, errors='coerce')
+    candles = pd.read_csv(candles_path, )
+    candles['time'] = pd.to_datetime(candles['time'])
+    candles.set_index('time', inplace=True)
+    candles = candles.apply(pd.to_numeric, errors='coerce')
 
 # Calculate indicators
-df = data.ta.bbands()
-fast_ma = vbt.MA.run(data['close'], 14)
-slow_ma = vbt.MA.run(data['close'], 50)
+df = candles.ta.bbands()
+fast_ma = vbt.MA.run(candles['close'], 14)
+slow_ma = vbt.MA.run(candles['close'], 50)
 
 # Generate signals with vectorbt
 entries = vbt.signals.ma_crossed_above(fast_ma, slow_ma)
 exits = vbt.signals.ma_crossed_below(fast_ma, slow_ma)
 
 # Create portfolio and print some stats
-portfolio = vbt.Portfolio.from_signals(data['close'], entries, exits)
+portfolio = vbt.Portfolio.from_signals(candles['close'], entries, exits)
 print(portfolio.stats())
