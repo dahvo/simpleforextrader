@@ -27,7 +27,7 @@ start = pd.Timestamp.now() - pd.DateOffset(years=1)
 api = API(access_token=demo_oanda_key)
 params = {
     "from": start,
-    "granularity": "M5"  # 5 minute candlesticks
+    "granularity": granularity
 }
 candles_file = "candles/{}.{}".format(instrument, granularity)
 
