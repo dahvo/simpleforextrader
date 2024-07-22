@@ -16,7 +16,7 @@ warnings.filterwarnings('ignore')
 # Set your OANDA Account Credentials
 # live_oanda_key = os.environ['demo_oanda_key']
 
-demo_oanda_key = "25d3e35052f562976eb1722541bedfe1-5cd767d9272170436242b276ee6da169"
+demo_oanda_key = os.environ['demo_oanda_key']
 
 def get_candle_data():
     # demo_oanda_key = "f73f8046bfa47e5374f237ef8e3f5478-0494f5a4f8b1ef6d2545ae4077d1862a"
