@@ -19,7 +19,6 @@ warnings.filterwarnings('ignore')
 demo_oanda_key = os.environ['demo_oanda_key']
 
 def get_candle_data():
-    # demo_oanda_key = "f73f8046bfa47e5374f237ef8e3f5478-0494f5a4f8b1ef6d2545ae4077d1862a"
     instrument = 'EUR_USD'
     granularity = 'M1'
     start = pd.Timestamp.now() - pd.DateOffset(years=1)
